@@ -3,6 +3,7 @@ package com.jamith.rmi.service;
 import com.jamith.rmi.dto.UserDTO;
 
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * @author Jamith Nimantha
@@ -71,5 +72,13 @@ public interface UserService extends SuperService {
      * @return true if session destroyed
      */
     boolean logout(String cookie);
+
+
+    /**
+     * Get all the Users as a UserDTO List
+     *
+     * @return all the Users
+     */
+    List<UserDTO> getAllUsers();
     
 }

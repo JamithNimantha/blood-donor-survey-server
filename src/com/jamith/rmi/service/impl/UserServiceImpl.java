@@ -8,6 +8,8 @@ import com.jamith.rmi.service.UserService;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jamith Nimantha
@@ -135,6 +137,26 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     @Override
     public boolean logout(String cookie) {
         return true;
+    }
+
+    /**
+     * Get all the Users as a UserDTO List
+     *
+     * @return all the Users
+     */
+    @Override
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> userDTOS = new ArrayList<>();
+        try {
+            List<User> userList = userRepository.getAll();
+            for (User user : userList) {
+                UserDTO userDTO = toDTO(user);
+                userDTOS.add(userDTO);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userDTOS;
     }
 
     /**
