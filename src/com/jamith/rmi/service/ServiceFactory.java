@@ -1,14 +1,16 @@
 package com.jamith.rmi.service;
 
+import java.rmi.RemoteException;
+
 /**
  * @author Jamith Nimantha
  */
-public interface ServiceFactory extends Service {
+public interface ServiceFactory extends SuperService {
 
-    public enum ServiceType {
+    SuperService getService(ServiceType serviceType) throws RemoteException;
+
+    enum ServiceType {
         USER
     }
-
-    public Service getService(ServiceType serviceType) throws Exception;
 
 }

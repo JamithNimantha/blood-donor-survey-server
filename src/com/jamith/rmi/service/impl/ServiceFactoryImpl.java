@@ -1,8 +1,8 @@
 package com.jamith.rmi.service.impl;
 
 
-import com.jamith.rmi.service.Service;
 import com.jamith.rmi.service.ServiceFactory;
+import com.jamith.rmi.service.SuperService;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -25,7 +25,7 @@ public class ServiceFactoryImpl extends UnicastRemoteObject implements ServiceFa
     }
 
     @Override
-    public Service getService(ServiceType serviceType) throws Exception {
+    public SuperService getService(ServiceType serviceType) throws RemoteException {
         switch (serviceType){
             case USER:
                 return new UserServiceImpl();

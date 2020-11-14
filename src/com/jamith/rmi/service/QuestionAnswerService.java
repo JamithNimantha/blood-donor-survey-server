@@ -3,7 +3,7 @@ package com.jamith.rmi.service;
 /**
  * @author Jamith Nimantha
  */
-public interface QuestionAnswerService extends Service {
+public interface QuestionAnswerService extends SuperService {
 
 
 
