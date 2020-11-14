@@ -14,7 +14,7 @@ public class ServerApplication {
     public static void main(String[] args) {
         System.out.println("Connecting to Server.......");
         try {
-            stopServer(); // Stops Server
+            stopServerIfExists(); // Stops Server
             Registry registry = LocateRegistry.createRegistry(6666);
             registry.rebind("survey", new ServiceFactoryImpl().getInstance());
             System.out.println("====== Server is up and running ======");
@@ -23,7 +23,10 @@ public class ServerApplication {
         }
     }
 
-    private static void stopServer() {
+    /**
+     * Stop the Server if already server exists.
+     */
+    private static void stopServerIfExists() {
         Registry registry = null;
         try {
             registry = LocateRegistry.createRegistry(6666);
