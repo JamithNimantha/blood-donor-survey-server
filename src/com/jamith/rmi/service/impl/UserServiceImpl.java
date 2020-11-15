@@ -2,12 +2,14 @@ package com.jamith.rmi.service.impl;
 
 import com.jamith.rmi.dto.UserDTO;
 import com.jamith.rmi.entity.User;
+import com.jamith.rmi.repository.RepositoryFactory;
 import com.jamith.rmi.repository.UserRepository;
-import com.jamith.rmi.repository.impl.UserRepositoryImpl;
 import com.jamith.rmi.service.UserService;
+import com.jamith.rmi.util.PasswordUtil;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +21,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     private UserRepository userRepository;
 
     UserServiceImpl() throws RemoteException {
-        if (userRepository == null) {
-            userRepository = new UserRepositoryImpl();
-        }
+        userRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.USER);
     }
 
     /**
@@ -33,7 +33,11 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      */
     @Override
     public boolean saveUser(UserDTO userDTO) throws Exception {
-        User user = toEntity(userDTO);
+        User user = userDTO.toEntity();
+        String salt = PasswordUtil.getSalt();
+        String securePassword = PasswordUtil.generateSecurePassword(user.getPassword(), salt);
+        user.setSalt(salt);
+        user.setPassword(securePassword);
         return userRepository.save(user);
 
     }
@@ -82,8 +86,13 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      */
     @Override
     public boolean updateUser(UserDTO userDTO) throws RemoteException {
-        User user = toEntity(userDTO);
+        User user = userDTO.toEntity();
+
         try {
+            String salt = PasswordUtil.getSalt();
+            String securePassword = PasswordUtil.generateSecurePassword(user.getPassword(), salt);
+            user.setSalt(salt);
+            user.setPassword(securePassword);
             return userRepository.update(user);
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,9 +129,13 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     public String login(String email, String password) throws RemoteException {
         User user = userRepository.findByEmail(email);
         if (user != null) {
-            boolean equals = password.equals(user.getPassword());
-            if (equals) {
-                return "qwe" + Math.random();
+            try {
+                boolean equals = PasswordUtil.verifyUserPassword(password, user.getPassword(), user.getSalt());
+                if (equals) {
+                    return "qwe" + Math.random();
+                }
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
             }
         }
         return null;
@@ -150,45 +163,12 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
         try {
             List<User> userList = userRepository.getAll();
             for (User user : userList) {
-                UserDTO userDTO = toDTO(user);
+                UserDTO userDTO = user.toDTO();
                 userDTOS.add(userDTO);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return userDTOS;
-    }
-
-    /**
-     * Convert UserDTO to User class type
-     *
-     * @param userDTO UserDTO to be converted
-     * @return user as a entity
-     */
-    private User toEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setFullName(userDTO.getFullName());
-        user.setEmail(userDTO.getEmail());
-        user.setMobile(userDTO.getMobile());
-        user.setType(userDTO.getType());
-        user.setPassword(userDTO.getPassword());
-        return user;
-    }
-
-    /**
-     * Convert User Entity to UserDTO
-     *
-     * @param user User entity to be converted
-     * @return userDTO as DTO
-     */
-    private UserDTO toDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setFullName(user.getFullName());
-        dto.setEmail(user.getEmail());
-        dto.setMobile(user.getMobile());
-        dto.setType(user.getPassword());
-        dto.setPassword(user.getPassword());
-        return dto;
     }
 }
