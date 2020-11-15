@@ -1,5 +1,6 @@
 package com.jamith.rmi.entity;
 
+import com.jamith.rmi.dto.QuestionDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Jamith Nimantha
@@ -30,11 +32,19 @@ public class Question implements Serializable {
     @Column
     private String name;
 
-    @Column
-    @OneToMany(mappedBy = "question_id")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "question")
     private List<Answer> answers;
 
-    @Column
-    @OneToMany(mappedBy = "question_id")
-    private List<Question> questions;
+//    @OneToMany(mappedBy = "question")
+//    private List<Response> responses;
+
+    public QuestionDTO toDto() {
+        QuestionDTO dto = new QuestionDTO();
+        dto.setId(this.id);
+        dto.setType(this.type);
+        dto.setName(this.name);
+        dto.setAnswerDTOS(this.answers.stream().map(Answer::toDTO).collect(Collectors.toList()));
+        return dto;
+    }
+
 }

@@ -29,6 +29,9 @@ public class ServiceFactoryImpl extends UnicastRemoteObject implements ServiceFa
         switch (serviceType){
             case USER:
                 return new UserServiceImpl();
+            case QUESTIONANSWER:
+                return new QuestionAnswerServiceImpl();
+            case RESPONSE:
             default:
                 return null;
         }

@@ -8,13 +8,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Jamith Nimantha
  */
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl implements UserRepository, Serializable {
 
     private SessionFactory sessionFactory;
 

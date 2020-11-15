@@ -6,6 +6,7 @@ import com.jamith.rmi.repository.RepositoryFactory;
 import com.jamith.rmi.repository.UserRepository;
 import com.jamith.rmi.service.UserService;
 import com.jamith.rmi.util.PasswordUtil;
+import com.jamith.rmi.util.ToEntity;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -33,11 +34,8 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      */
     @Override
     public boolean saveUser(UserDTO userDTO) throws Exception {
-        User user = userDTO.toEntity();
-        String salt = PasswordUtil.getSalt();
-        String securePassword = PasswordUtil.generateSecurePassword(user.getPassword(), salt);
-        user.setSalt(salt);
-        user.setPassword(securePassword);
+        User user = ToEntity.toUserEntity(userDTO);
+        System.out.println(user);
         return userRepository.save(user);
 
     }
@@ -51,6 +49,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      */
     @Override
     public boolean registerUser(UserDTO userDTO) {
+        System.out.println(userDTO);
         userDTO.setType("USER");
         try {
             return saveUser(userDTO);
@@ -70,6 +69,10 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     public boolean createAdminUser(UserDTO userDTO) {
         userDTO.setType("ADMIN");
         try {
+            String salt = PasswordUtil.getSalt();
+            String securePassword = PasswordUtil.generateSecurePassword(userDTO.getPassword(), salt);
+            userDTO.setSalt(salt);
+            userDTO.setPassword(securePassword);
             return saveUser(userDTO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +89,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      */
     @Override
     public boolean updateUser(UserDTO userDTO) throws RemoteException {
-        User user = userDTO.toEntity();
+        User user = ToEntity.toUserEntity(userDTO);
 
         try {
             String salt = PasswordUtil.getSalt();
@@ -148,7 +151,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      * @return true if session destroyed
      */
     @Override
-    public boolean logout(String cookie) {
+    public boolean logout(String cookie) throws RemoteException {
         return true;
     }
 
@@ -158,7 +161,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      * @return all the Users
      */
     @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserDTO> getAllUsers() throws RemoteException {
         List<UserDTO> userDTOS = new ArrayList<>();
         try {
             List<User> userList = userRepository.getAll();

@@ -2,13 +2,26 @@ package com.jamith.rmi.repository.impl;
 
 import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.repository.ResponseRepository;
+import com.jamith.rmi.util.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Jamith Nimantha
  */
-public class ResponseRepositoryImpl implements ResponseRepository {
+public class ResponseRepositoryImpl implements ResponseRepository, Serializable {
+
+    private SessionFactory sessionFactory;
+
+    public ResponseRepositoryImpl() {
+        sessionFactory = HibernateUtil.getSessionFactory();
+    }
+
     /**
      * Save the instance of the Entity
      *
@@ -17,7 +30,16 @@ public class ResponseRepositoryImpl implements ResponseRepository {
      * @throws Exception
      */
     @Override
-    public boolean save(Response entity) throws Exception {
+    public boolean save(Response response) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.persist(response);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -30,6 +52,16 @@ public class ResponseRepositoryImpl implements ResponseRepository {
      */
     @Override
     public boolean update(Response entity) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Response response = session.get(Response.class, entity.getId());
+            session.update(response);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -42,6 +74,16 @@ public class ResponseRepositoryImpl implements ResponseRepository {
      */
     @Override
     public boolean delete(Integer id) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.getTransaction().begin();
+            Response response = session.get(Response.class, id);
+            session.remove(response);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -54,6 +96,13 @@ public class ResponseRepositoryImpl implements ResponseRepository {
      */
     @Override
     public Response getOne(Integer id) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            return session.get(Response.class, id);
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return null;
     }
 
@@ -65,6 +114,13 @@ public class ResponseRepositoryImpl implements ResponseRepository {
      */
     @Override
     public List<Response> getAll() throws Exception {
-        return null;
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            return session.createCriteria(Response.class).list();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

@@ -2,22 +2,44 @@ package com.jamith.rmi.repository.impl;
 
 import com.jamith.rmi.entity.Answer;
 import com.jamith.rmi.repository.AnswerRepository;
+import com.jamith.rmi.util.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Jamith Nimantha
  */
-public class AnswerRepositoryImpl implements AnswerRepository {
+public class AnswerRepositoryImpl implements AnswerRepository, Serializable {
+
+    private SessionFactory sessionFactory;
+
+    public AnswerRepositoryImpl() {
+        sessionFactory = HibernateUtil.getSessionFactory();
+    }
+
     /**
      * Save the instance of the Entity
      *
-     * @param entity The Entity to be saved
+     * @param answer The Entity to be saved
      * @return true if instance of the Entity Successfully saved
      * @throws Exception
      */
     @Override
-    public boolean save(Answer entity) throws Exception {
+    public boolean save(Answer answer) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.persist(answer);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -30,6 +52,16 @@ public class AnswerRepositoryImpl implements AnswerRepository {
      */
     @Override
     public boolean update(Answer entity) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Answer answer = session.get(Answer.class, entity.getId());
+            session.update(answer);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -42,6 +74,16 @@ public class AnswerRepositoryImpl implements AnswerRepository {
      */
     @Override
     public boolean delete(Integer id) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.getTransaction().begin();
+            Answer answer = session.get(Answer.class, id);
+            session.remove(answer);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -54,6 +96,13 @@ public class AnswerRepositoryImpl implements AnswerRepository {
      */
     @Override
     public Answer getOne(Integer id) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            return session.get(Answer.class, id);
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
         return null;
     }
 
@@ -65,6 +114,13 @@ public class AnswerRepositoryImpl implements AnswerRepository {
      */
     @Override
     public List<Answer> getAll() throws Exception {
-        return null;
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            return session.createCriteria(Answer.class).list();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

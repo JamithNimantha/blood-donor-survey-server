@@ -71,7 +71,7 @@ public interface UserService extends SuperService {
      * @param cookie session cookie
      * @return true if session destroyed
      */
-    boolean logout(String cookie);
+    boolean logout(String cookie) throws RemoteException;
 
 
     /**
@@ -79,6 +79,6 @@ public interface UserService extends SuperService {
      *
      * @return all the Users
      */
-    List<UserDTO> getAllUsers();
+    List<UserDTO> getAllUsers() throws RemoteException;
     
 }
