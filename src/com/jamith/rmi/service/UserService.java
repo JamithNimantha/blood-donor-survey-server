@@ -63,7 +63,7 @@ public interface UserService extends SuperService {
      * @return the generated session for the useer
      * @throws RemoteException
      */
-    String login(String email, String password) throws RemoteException;
+    String login(String email, String password) throws Exception;
 
     /**
      * logOut and destroy the user session
@@ -80,5 +80,13 @@ public interface UserService extends SuperService {
      * @return all the Users
      */
     List<UserDTO> getAllUsers() throws RemoteException;
+
+    /**
+     * Find User by Email
+     *
+     * @return UserDTO
+     * @throws RemoteException
+     */
+    UserDTO findByEmail(String email) throws RemoteException;
     
 }

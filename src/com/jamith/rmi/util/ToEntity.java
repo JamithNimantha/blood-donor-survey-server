@@ -41,7 +41,8 @@ public class ToEntity {
         Answer answer = new Answer();
         answer.setId(dto.getId());
         answer.setName(dto.getName());
-        answer.setQuestion(toQuestionEntity(dto.getQuestionDTO()));
+        if (dto.getQuestionDTO() != null)
+            answer.setQuestion(toQuestionEntity(dto.getQuestionDTO()));
         return answer;
     }
 

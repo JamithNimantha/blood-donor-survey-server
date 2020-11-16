@@ -129,7 +129,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
      * @throws RemoteException
      */
     @Override
-    public String login(String email, String password) throws RemoteException {
+    public String login(String email, String password) throws Exception {
         User user = userRepository.findByEmail(email);
         if (user != null) {
             try {
@@ -173,5 +173,22 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
             e.printStackTrace();
         }
         return userDTOS;
+    }
+
+    /**
+     * Find User by Email
+     *
+     * @param email
+     * @return UserDTO
+     * @throws RemoteException
+     */
+    @Override
+    public UserDTO findByEmail(String email) throws RemoteException {
+        try {
+            return userRepository.findByEmail(email).toDTO();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

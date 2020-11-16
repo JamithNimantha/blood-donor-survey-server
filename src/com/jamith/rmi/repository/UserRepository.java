@@ -13,5 +13,5 @@ public interface UserRepository extends CrudRepository<User, Integer> {
      * @param email email of the user
      * @return the instance of the User
      */
-    User findByEmail(String email);
+    User findByEmail(String email) throws Exception;
 }

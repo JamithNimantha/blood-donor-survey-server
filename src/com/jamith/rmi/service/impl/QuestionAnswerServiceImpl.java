@@ -1,16 +1,20 @@
 package com.jamith.rmi.service.impl;
 
 import com.jamith.rmi.dto.QuestionDTO;
+import com.jamith.rmi.dto.ResponseDTO;
 import com.jamith.rmi.entity.Question;
+import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.repository.AnswerRepository;
 import com.jamith.rmi.repository.QuestionRepository;
 import com.jamith.rmi.repository.RepositoryFactory;
+import com.jamith.rmi.repository.ResponseRepository;
 import com.jamith.rmi.service.QuestionAnswerService;
 import com.jamith.rmi.util.ToEntity;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,9 +27,12 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
 
     private AnswerRepository answerRepository;
 
+    private ResponseRepository responseRepository;
+
     QuestionAnswerServiceImpl() throws RemoteException {
         questionRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.QUESTION);
         answerRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.ANSWER);
+        responseRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.RESPONSE);
     }
 
 
@@ -93,6 +100,45 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
         }
         System.out.println(questionDTOS);
         return questionDTOS;
+    }
+
+    /**
+     * Save all the responses
+     *
+     * @param responseDTOS
+     * @return true if Responses saved
+     * @throws RemoteException
+     */
+    @Override
+    public boolean saveResponse(List<ResponseDTO> responseDTOS) throws RemoteException {
+        String email = responseDTOS.get(0).getUserDTO().getEmail();
+        checkIfUserHasPreviousResponse(email);
+        for (ResponseDTO responseDTO : responseDTOS) {
+            Response response = ToEntity.toResponseEntity(responseDTO);
+            response.setDate(new Date());
+            try {
+                responseRepository.save(response);
+            } catch (Exception e) {
+                System.err.println("Error Occurred while saving Response ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void checkIfUserHasPreviousResponse(String email) {
+        try {
+            List<Response> responseList = responseRepository.findAllResponsesByEmail(email);
+            if (!responseList.isEmpty()) {
+                for (Response response : responseList) {
+                    responseRepository.delete(response.getId());
+                    System.out.println("Response Deleted : " + response.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

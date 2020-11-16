@@ -15,8 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@Entity
-@Table
+@Entity(name = "response")
 public class Response implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

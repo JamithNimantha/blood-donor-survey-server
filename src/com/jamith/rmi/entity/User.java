@@ -11,11 +11,11 @@ import java.io.Serializable;
 /**
  * @author Jamith Nimantha
  */
-@Entity
-@Table(name = "user")
+
 @Getter
 @Setter
 @ToString
+@Entity(name = "user")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +26,7 @@ public class User implements Serializable {
     private Integer id;
     @Column(name = "full_name")
     private String fullName;
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
     @Column(name = "mobile_number")
     private String mobile;

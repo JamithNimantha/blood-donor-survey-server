@@ -134,10 +134,10 @@ public class UserRepositoryImpl implements UserRepository, Serializable {
      * @return the instance of the User
      */
     @Override
-    public User findByEmail(String email) {
+    public User findByEmail(String email) throws Exception {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Query query = session.createQuery("FROM user U WHERE U.email = :email");
+            Query query = session.createQuery("FROM user U WHERE U.email = :email", User.class);
             query.setParameter("email", email);
             List<User> result = query.getResultList();
             return result.get(0);

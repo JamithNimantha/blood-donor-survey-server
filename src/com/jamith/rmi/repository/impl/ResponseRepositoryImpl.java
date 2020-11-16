@@ -6,6 +6,7 @@ import com.jamith.rmi.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -117,6 +118,20 @@ public class ResponseRepositoryImpl implements ResponseRepository, Serializable 
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             return session.createCriteria(Response.class).list();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Response> findAllResponsesByEmail(String email) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery("SELECT R FROM response R INNER JOIN user U ON R.user.id = U.id WHERE U.email = :email", Response.class);
+            query.setParameter("email", email);
+            return query.getResultList();
         } catch (HibernateException e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
