@@ -140,7 +140,8 @@ public class UserRepositoryImpl implements UserRepository, Serializable {
             Query query = session.createQuery("FROM user U WHERE U.email = :email", User.class);
             query.setParameter("email", email);
             List<User> result = query.getResultList();
-            return result.get(0);
+            if (!result.isEmpty())
+                return result.get(0);
         } catch (HibernateException e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
