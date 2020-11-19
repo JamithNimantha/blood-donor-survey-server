@@ -51,4 +51,13 @@ public interface QuestionAnswerService extends SuperService {
      */
     boolean saveResponse(List<ResponseDTO> responseDTOS) throws RemoteException;
 
+    /**
+     * Generate Report with QuickChart.io API
+     *
+     * @param questionDTO Question DTO
+     * @return Byte Array
+     * @throws RemoteException
+     */
+    byte[] generateReport(QuestionDTO questionDTO) throws RemoteException;
+
 }

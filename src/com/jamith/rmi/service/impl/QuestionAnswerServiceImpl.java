@@ -1,6 +1,7 @@
 package com.jamith.rmi.service.impl;
 
 import com.jamith.rmi.dto.QuestionDTO;
+import com.jamith.rmi.dto.ReportDTO;
 import com.jamith.rmi.dto.ResponseDTO;
 import com.jamith.rmi.entity.Question;
 import com.jamith.rmi.entity.Response;
@@ -11,11 +12,19 @@ import com.jamith.rmi.repository.ResponseRepository;
 import com.jamith.rmi.service.QuestionAnswerService;
 import com.jamith.rmi.util.ToEntity;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Jamith Nimantha
@@ -29,7 +38,7 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
 
     private ResponseRepository responseRepository;
 
-    QuestionAnswerServiceImpl() throws RemoteException {
+    public QuestionAnswerServiceImpl() throws RemoteException {
         questionRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.QUESTION);
         answerRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.ANSWER);
         responseRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.RESPONSE);
@@ -125,6 +134,65 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
             }
         }
         return true;
+    }
+
+    /**
+     * Generate Report with QuickChart.io API
+     *
+     * @param questionDTO Question DTO
+     * @return Byte Array
+     * @throws RemoteException
+     */
+    @Override
+    public byte[] generateReport(QuestionDTO questionDTO) throws RemoteException {
+
+        String pieChartUrl = "{type:'doughnut',data:{labels:%label%,datasets:[{data:%data%}]},options:{plugins:" +
+                "{datalabels:{display:true,backgroundColor:'#ccc',borderRadius:3,font:{color:'red',weight:'bold',}}," +
+                "doughnutlabel:{labels:[{text:'%total%',font:{size:20,weight:'bold'}},{text:'Total'}]}}}}";
+        try {
+            List<ReportDTO> reportDTOS = responseRepository.generateReportByQuestionId(questionDTO.getId());
+
+            List<Integer> data = reportDTOS.stream()
+                    .map(ReportDTO::getData)
+                    .collect(Collectors.toList());
+
+            List<String> labels = reportDTOS
+                    .stream()
+                    .map(ReportDTO::getLabel)
+                    .map(s -> String.format("'%s'", s))
+                    .collect(Collectors.toList());
+
+            int total = data.stream().mapToInt(Integer::intValue).sum();
+
+            pieChartUrl = pieChartUrl
+                    .replace("%label%", labels.toString())
+                    .replace("%data%",data.toString())
+                    .replace("%total%", String.valueOf(total));
+            String encodedURL = URLEncoder.encode(pieChartUrl, String.valueOf(StandardCharsets.UTF_8));
+            pieChartUrl = "https://quickchart.io/chart?c=".concat(encodedURL).replaceAll("\\s","");
+
+            URL url = new URL(pieChartUrl);
+
+            return toByteStream(url.openStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
+    }
+
+    private byte[] toByteStream(InputStream inputStream) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            byte[] bytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(bytes)) > 0) {
+                stream.write(bytes, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
+        return stream.toByteArray();
     }
 
     private void checkIfUserHasPreviousResponse(String email) {
