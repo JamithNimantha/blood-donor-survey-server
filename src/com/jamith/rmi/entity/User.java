@@ -47,7 +47,7 @@ public class User implements Serializable {
         dto.setFullName(this.getFullName());
         dto.setEmail(this.getEmail());
         dto.setMobile(this.getMobile());
-        dto.setType(this.getPassword());
+        dto.setType(this.getType());
         dto.setPassword(this.getPassword());
         return dto;
     }
