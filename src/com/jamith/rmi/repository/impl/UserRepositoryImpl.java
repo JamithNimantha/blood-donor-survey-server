@@ -83,9 +83,8 @@ public class UserRepositoryImpl implements UserRepository, Serializable {
             return true;
         } catch (HibernateException e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
+            return false;
         }
-        return false;
     }
 
     /**

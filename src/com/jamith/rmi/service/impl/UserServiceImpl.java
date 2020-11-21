@@ -1,8 +1,10 @@
 package com.jamith.rmi.service.impl;
 
 import com.jamith.rmi.dto.UserDTO;
+import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.entity.User;
 import com.jamith.rmi.repository.RepositoryFactory;
+import com.jamith.rmi.repository.ResponseRepository;
 import com.jamith.rmi.repository.UserRepository;
 import com.jamith.rmi.service.UserService;
 import com.jamith.rmi.util.PasswordUtil;
@@ -17,12 +19,15 @@ import java.util.List;
 /**
  * @author Jamith Nimantha
  */
-public class UserServiceImpl extends UnicastRemoteObject implements UserService{
+public class UserServiceImpl extends UnicastRemoteObject implements UserService {
 
-    private final UserRepository userRepository;
+    private final transient UserRepository userRepository;
+
+    private final transient ResponseRepository responseRepository;
 
     UserServiceImpl() throws RemoteException {
         userRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.USER);
+        responseRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.RESPONSE);
     }
 
     /**
@@ -115,11 +120,16 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     @Override
     public boolean deleteUser(Integer id) throws RemoteException {
         try {
+            User user = userRepository.getOne(id);
+            List<Response> responses = responseRepository.findAllResponsesByEmail(user.getEmail());
+            for (Response response : responses) {
+                responseRepository.delete(response.getId());
+            }
             return userRepository.delete(id);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
