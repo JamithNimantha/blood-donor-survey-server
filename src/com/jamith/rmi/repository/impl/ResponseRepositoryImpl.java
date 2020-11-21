@@ -4,7 +4,6 @@ import com.jamith.rmi.dto.ReportDTO;
 import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.repository.ResponseRepository;
 import com.jamith.rmi.util.HibernateUtil;
-import com.sun.xml.bind.v2.model.core.ID;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,7 +22,7 @@ import java.util.List;
  */
 public class ResponseRepositoryImpl implements ResponseRepository, Serializable {
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public ResponseRepositoryImpl() {
         sessionFactory = HibernateUtil.getSessionFactory();
@@ -62,7 +61,7 @@ public class ResponseRepositoryImpl implements ResponseRepository, Serializable 
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             Response response = session.get(Response.class, entity.getId());
-            session.update(response);
+            session.update(entity);
             session.getTransaction().commit();
             return true;
         } catch (HibernateException e) {

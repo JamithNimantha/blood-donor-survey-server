@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class AnswerRepositoryImpl implements AnswerRepository, Serializable {
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public AnswerRepositoryImpl() {
         sessionFactory = HibernateUtil.getSessionFactory();
@@ -54,8 +54,7 @@ public class AnswerRepositoryImpl implements AnswerRepository, Serializable {
     public boolean update(Answer entity) throws Exception {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Answer answer = session.get(Answer.class, entity.getId());
-            session.update(answer);
+            session.update(entity);
             session.getTransaction().commit();
             return true;
         } catch (HibernateException e) {

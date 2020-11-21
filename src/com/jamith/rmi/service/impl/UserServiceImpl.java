@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class UserServiceImpl extends UnicastRemoteObject implements UserService{
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     UserServiceImpl() throws RemoteException {
         userRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.USER);
@@ -90,12 +90,14 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService{
     @Override
     public boolean updateUser(UserDTO userDTO) throws RemoteException {
         User user = ToEntity.toUserEntity(userDTO);
-
         try {
-            String salt = PasswordUtil.getSalt();
-            String securePassword = PasswordUtil.generateSecurePassword(user.getPassword(), salt);
-            user.setSalt(salt);
-            user.setPassword(securePassword);
+            if (user.getType().equals("ADMIN")) {
+                String salt = PasswordUtil.getSalt();
+                String securePassword = PasswordUtil.generateSecurePassword(user.getPassword(), salt);
+                user.setSalt(salt);
+                user.setPassword(securePassword);
+            }
+            System.out.println("Update User :" + user);
             return userRepository.update(user);
         } catch (Exception e) {
             e.printStackTrace();

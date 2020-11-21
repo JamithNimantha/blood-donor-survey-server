@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class UserRepositoryImpl implements UserRepository, Serializable {
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public UserRepositoryImpl() {
         sessionFactory = HibernateUtil.getSessionFactory();
@@ -56,8 +56,7 @@ public class UserRepositoryImpl implements UserRepository, Serializable {
     public boolean update(User entity) throws Exception {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            User user = session.get(User.class, entity.getId());
-            session.update(user);
+            session.update(entity);
             session.getTransaction().commit();
             return true;
         } catch (HibernateException e) {
