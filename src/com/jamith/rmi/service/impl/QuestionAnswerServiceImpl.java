@@ -93,6 +93,14 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
      */
     @Override
     public boolean deleteQuestion(Integer id) throws Exception {
+        List<Answer> answerList = answerRepository.findAllByQuestionId(id);
+        for (Answer answer : answerList) {
+            List<Response> responseList = responseRepository.findByAnswerId(answer.getId());
+            for (Response response : responseList) {
+                responseRepository.delete(response.getId());
+            }
+            answerRepository.delete(answer.getId());
+        }
         return questionRepository.delete(id);
     }
 
