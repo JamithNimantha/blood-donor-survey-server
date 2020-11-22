@@ -123,4 +123,17 @@ public class QuestionRepositoryImpl implements QuestionRepository, Serializable 
         }
         return new ArrayList<>();
     }
+
+    @Override
+    public Integer saveQuestion(Question question) throws Exception {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Integer id = (Integer) session.save(question);
+            session.getTransaction().commit();
+            return id;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -56,11 +56,17 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
     public boolean saveQuestion(QuestionDTO questionDTO) {
         Question question = ToEntity.toQuestionEntity(questionDTO);
         try {
-            return questionRepository.save(question);
+            Integer integer = questionRepository.saveQuestion(question);
+            Question one = questionRepository.getOne(integer);
+            for (Answer answer : question.getAnswers()) {
+                answer.setQuestion(one);
+                answerRepository.save(answer);
+            }
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
