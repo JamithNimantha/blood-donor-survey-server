@@ -6,6 +6,7 @@ import com.jamith.rmi.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class AnswerRepositoryImpl implements AnswerRepository, Serializable {
     public boolean update(Answer entity) throws Exception {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            session.update(entity);
+            session.saveOrUpdate(entity);
             session.getTransaction().commit();
             return true;
         } catch (HibernateException e) {
@@ -121,5 +122,25 @@ public class AnswerRepositoryImpl implements AnswerRepository, Serializable {
             System.out.println(e.getMessage());
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * Get All Answers mapped to the QuestionID
+     *
+     * @param id question id
+     * @return list of Answer Entities
+     */
+    @Override
+    public List<Answer> findAllByQuestionId(Integer id) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery("FROM answer A WHERE A.question.id = :id", Answer.class);
+            query.setParameter("id", id);
+            return query.getResultList();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
     }
 }

@@ -13,8 +13,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@Entity
-@Table
+@Entity(name = "answer")
 public class Answer implements Serializable {
 
     @Id

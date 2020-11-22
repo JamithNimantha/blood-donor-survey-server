@@ -185,4 +185,25 @@ public class ResponseRepositoryImpl implements ResponseRepository, Serializable 
         }
         return new ArrayList<>();
     }
+
+    /**
+     * Find Responses by Answer
+     *
+     * @param id Answer ID
+     * @return List of Response
+     */
+    @Override
+    public List<Response> findByAnswerId(Integer id) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Query query = session.createQuery("SELECT R FROM response R  WHERE R.answer.id = :id", Response.class);
+            query.setParameter("id", id);
+            return query.getResultList();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
 }

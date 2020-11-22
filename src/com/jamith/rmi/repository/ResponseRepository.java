@@ -28,5 +28,13 @@ public interface ResponseRepository extends CrudRepository<Response, Integer> {
      */
     List<ReportDTO> generateReportByQuestionId(Integer id) throws Exception;
 
+    /**
+     * Find Responses by Answer
+     *
+     * @param id Answer ID
+     * @return List of Response
+     */
+    List<Response> findByAnswerId(Integer id);
+
 
 }

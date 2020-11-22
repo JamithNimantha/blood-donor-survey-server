@@ -9,6 +9,8 @@ import com.jamith.rmi.entity.Question;
 import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.entity.User;
 
+import java.util.stream.Collectors;
+
 /**
  * @author Jamith Nimantha
  */
@@ -34,6 +36,12 @@ public class ToEntity {
         question.setId(dto.getId());
         question.setName(dto.getName());
         question.setType(dto.getType());
+        if (dto.getAnswerDTOS() != null) {
+            question.setAnswers(dto.getAnswerDTOS().stream()
+                    .map(ToEntity::toAnswerEntity)
+                    .collect(Collectors.toList())
+            );
+        }
         return question;
     }
 

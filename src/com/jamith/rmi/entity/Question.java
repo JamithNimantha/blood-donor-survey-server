@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author Jamith Nimantha
  */
-@Entity
-@Table
+@Entity(name = "question")
 @Getter
 @Setter
 @ToString

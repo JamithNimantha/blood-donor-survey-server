@@ -1,8 +1,10 @@
 package com.jamith.rmi.service.impl;
 
+import com.jamith.rmi.dto.AnswerDTO;
 import com.jamith.rmi.dto.QuestionDTO;
 import com.jamith.rmi.dto.ReportDTO;
 import com.jamith.rmi.dto.ResponseDTO;
+import com.jamith.rmi.entity.Answer;
 import com.jamith.rmi.entity.Question;
 import com.jamith.rmi.entity.Response;
 import com.jamith.rmi.repository.AnswerRepository;
@@ -12,7 +14,6 @@ import com.jamith.rmi.repository.ResponseRepository;
 import com.jamith.rmi.service.QuestionAnswerService;
 import com.jamith.rmi.util.ToEntity;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,11 +33,11 @@ import java.util.stream.Collectors;
 
 public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements QuestionAnswerService {
 
-    private QuestionRepository questionRepository;
+    private final transient QuestionRepository questionRepository;
 
-    private AnswerRepository answerRepository;
+    private final transient AnswerRepository answerRepository;
 
-    private ResponseRepository responseRepository;
+    private final transient ResponseRepository responseRepository;
 
     public QuestionAnswerServiceImpl() throws RemoteException {
         questionRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.QUESTION);
@@ -72,11 +73,16 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
     public boolean updateQuestion(QuestionDTO questionDTO) {
         Question question = ToEntity.toQuestionEntity(questionDTO);
         try {
-            return questionRepository.save(question);
+//            List<Answer> answerList = answerRepository.findAllByQuestionId(question.getId());
+            for (Answer answer : question.getAnswers()) {
+                answer.setQuestion(question);
+                answerRepository.update(answer);
+            }
+            return questionRepository.update(question);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
@@ -178,6 +184,30 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
             e.printStackTrace();
             return new byte[0];
         }
+    }
+
+    /**
+     * Delete Answers
+     *
+     * @param answerDTOS List of AnswerDTOs to be deleted
+     * @return true if Answers deleted
+     * @throws RemoteException
+     */
+    @Override
+    public boolean deleteAnswers(List<AnswerDTO> answerDTOS) throws RemoteException {
+        for (AnswerDTO answerDTO : answerDTOS) {
+            try {
+                List<Response> responseList = responseRepository.findByAnswerId(answerDTO.getId());
+                for (Response response : responseList) {
+                    responseRepository.delete(response.getId());
+                }
+                answerRepository.delete(answerDTO.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     private byte[] toByteStream(InputStream inputStream) {
