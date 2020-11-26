@@ -17,6 +17,7 @@ import com.jamith.rmi.util.ToEntity;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +39,10 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
     private final transient AnswerRepository answerRepository;
 
     private final transient ResponseRepository responseRepository;
+
+    private static final String USER_AGENT_CHROME = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2919.83 Safari/537.36";
+
+    private static final String QUICK_CHART_API_URL = "https://quickchart.io/chart?c=";
 
     public QuestionAnswerServiceImpl() throws RemoteException {
         questionRepository = RepositoryFactory.getInstance().RepoFactoryFor(RepositoryFactory.RepositoryTypes.QUESTION);
@@ -166,14 +171,17 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
     @Override
     public byte[] generateReport(QuestionDTO questionDTO) throws RemoteException {
 
-        String pieChartUrl = "{type:'doughnut',data:{labels:%label%,datasets:[{data:%data%}]},options:{plugins:" +
-                "{datalabels:{display:true,backgroundColor:'#ccc',borderRadius:3,font:{color:'red',weight:'bold',}}," +
-                "doughnutlabel:{labels:[{text:'%total%',font:{size:20,weight:'bold'}},{text:'Total'}]}}}}";
+        // Template of the Query Parameters
+        String pieChartUrl = "{type:'pie',data:{labels:%label%,datasets:[{data:%data%}]},options:{plugins:" +
+                "{datalabels:{display:true,backgroundColor:'#ccc',borderRadius:3,font:{color:'red',weight:'bold',}," +
+                "formatter:(value)=>{return value+'%';}}}}}";
         try {
             List<ReportDTO> reportDTOS = responseRepository.generateReportByQuestionId(questionDTO.getId());
 
+            int total = reportDTOS.stream().mapToInt(ReportDTO::getData).sum();
+
             List<Integer> data = reportDTOS.stream()
-                    .map(ReportDTO::getData)
+                    .map(reportDTO -> reportDTO.getData() * 100 / total)
                     .collect(Collectors.toList());
 
             List<String> labels = reportDTOS
@@ -182,22 +190,73 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
                     .map(s -> String.format("'%s'", s))
                     .collect(Collectors.toList());
 
-            int total = data.stream().mapToInt(Integer::intValue).sum();
-
             pieChartUrl = pieChartUrl
                     .replace("%label%", labels.toString())
-                    .replace("%data%",data.toString())
-                    .replace("%total%", String.valueOf(total));
+                    .replace("%data%", data.toString());
+
             String encodedURL = URLEncoder.encode(pieChartUrl, String.valueOf(StandardCharsets.UTF_8));
-            pieChartUrl = "https://quickchart.io/chart?c=".concat(encodedURL).replaceAll("\\s","");
 
-            URL url = new URL(pieChartUrl);
+            pieChartUrl = QUICK_CHART_API_URL.concat(encodedURL).replaceAll("\\s", "");
 
-            return toByteStream(url.openStream());
+            return sendGetRequestToQuickChartAPI(pieChartUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return new byte[0];
         }
+    }
+
+
+    /**
+     * Convert InputSteam to Byte Array.
+     *
+     * @param inputStream Image InputStream
+     * @return Byte Array
+     */
+    private byte[] toByteStream(InputStream inputStream) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            byte[] bytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(bytes)) > 0) {
+                stream.write(bytes, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
+        return stream.toByteArray();
+    }
+
+    /**
+     * Send GET Request to QUICK CHART API and Get Report Image
+     *
+     * @param queryParameters encoded URL
+     * @return Byte Array
+     * @throws IOException
+     */
+    private byte[] sendGetRequestToQuickChartAPI(String queryParameters) throws IOException {
+        URL url = new URL(queryParameters);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", USER_AGENT_CHROME);
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            try {
+                byte[] bytes = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = connection.getInputStream().read(bytes)) > 0) {
+                    stream.write(bytes, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new byte[0];
+            }
+            return stream.toByteArray();
+        } else {
+            System.out.println("Error Occurred !" + responseCode);
+        }
+        return new byte[0];
     }
 
     /**
@@ -224,20 +283,6 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
         return true;
     }
 
-    private byte[] toByteStream(InputStream inputStream) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        try {
-            byte[] bytes = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(bytes)) > 0) {
-                stream.write(bytes, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
-        }
-        return stream.toByteArray();
-    }
 
     private void checkIfUserHasPreviousResponse(String email) {
         try {
