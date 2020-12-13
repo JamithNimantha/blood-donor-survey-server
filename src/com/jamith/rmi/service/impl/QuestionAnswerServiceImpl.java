@@ -125,14 +125,12 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
         List<QuestionDTO> questionDTOS = new ArrayList<>();
         try {
             List<Question> questionList = questionRepository.getAll();
-            System.err.println(questionList);
             for (Question question : questionList) {
                 questionDTOS.add(question.toDto());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(questionDTOS);
         return questionDTOS;
     }
 

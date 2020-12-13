@@ -11,6 +11,7 @@ import com.jamith.rmi.util.PasswordUtil;
 import com.jamith.rmi.util.ToEntity;
 
 import java.rmi.RemoteException;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -164,6 +165,12 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
      */
     @Override
     public boolean logout(String cookie) throws RemoteException {
+        try {
+            String clientHost = getClientHost();
+            System.out.println(clientHost);
+        } catch (ServerNotActiveException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -196,10 +203,11 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
      */
     @Override
     public UserDTO findByEmail(String email) throws RemoteException {
+        System.out.println(email);
         try {
             return userRepository.findByEmail(email).toDTO();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("NO EMAIL FOUND");
         }
         return null;
     }
