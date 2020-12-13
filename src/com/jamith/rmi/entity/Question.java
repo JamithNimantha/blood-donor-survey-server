@@ -1,9 +1,6 @@
 package com.jamith.rmi.entity;
 
 import com.jamith.rmi.dto.QuestionDTO;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -14,9 +11,6 @@ import java.util.stream.Collectors;
  * @author Jamith Nimantha
  */
 @Entity(name = "question")
-@Getter
-@Setter
-@ToString
 public class Question implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -46,4 +40,46 @@ public class Question implements Serializable {
         return dto;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Question{");
+        sb.append("id=").append(id);
+        sb.append(", type='").append(type).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", answers=").append(answers);
+        sb.append('}');
+        return sb.toString();
+    }
 }

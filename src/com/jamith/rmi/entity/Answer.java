@@ -1,8 +1,6 @@
 package com.jamith.rmi.entity;
 
 import com.jamith.rmi.dto.AnswerDTO;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,8 +9,6 @@ import java.io.Serializable;
  * @author Jamith Nimantha
  */
 
-@Getter
-@Setter
 @Entity(name = "answer")
 public class Answer implements Serializable {
 
@@ -42,5 +38,29 @@ public class Answer implements Serializable {
         sb.append(", name='").append(name).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 }

@@ -1,9 +1,5 @@
 package com.jamith.rmi.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -11,10 +7,6 @@ import java.util.Date;
 /**
  * @author Jamith Nimantha
  */
-
-@Getter
-@Setter
-@ToString
 @Entity(name = "response")
 public class Response implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,4 +26,47 @@ public class Response implements Serializable {
     @Column
     @Temporal(TemporalType.DATE)
     private Date date;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Answer getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(Answer answer) {
+        this.answer = answer;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Response{");
+        sb.append("id=").append(id);
+        sb.append(", answer=").append(answer);
+        sb.append(", user=").append(user);
+        sb.append(", date=").append(date);
+        sb.append('}');
+        return sb.toString();
+    }
 }
