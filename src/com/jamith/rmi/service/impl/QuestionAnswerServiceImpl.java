@@ -176,12 +176,15 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
         try {
             List<ReportDTO> reportDTOS = responseRepository.generateReportByQuestionId(questionDTO.getId());
 
+            // Get Total
             int total = reportDTOS.stream().mapToInt(ReportDTO::getData).sum();
 
+            // Get Data List
             List<Integer> data = reportDTOS.stream()
                     .map(reportDTO -> reportDTO.getData() * 100 / total)
                     .collect(Collectors.toList());
 
+            // Get Label List
             List<String> labels = reportDTOS
                     .stream()
                     .map(ReportDTO::getLabel)
@@ -192,10 +195,13 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
                     .replace("%label%", labels.toString())
                     .replace("%data%", data.toString());
 
+            // Encoded URL
             String encodedURL = URLEncoder.encode(pieChartUrl, String.valueOf(StandardCharsets.UTF_8));
 
+            // Remove Spaces
             pieChartUrl = QUICK_CHART_API_URL.concat(encodedURL).replaceAll("\\s", "");
 
+            // Send Get Request to API
             return sendGetRequestToQuickChartAPI(pieChartUrl);
         } catch (Exception e) {
             e.printStackTrace();
@@ -210,6 +216,7 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
      * @param inputStream Image InputStream
      * @return Byte Array
      */
+    @SuppressWarnings("unused")
     private byte[] toByteStream(InputStream inputStream) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
@@ -227,6 +234,8 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
 
     /**
      * Send GET Request to QUICK CHART API and Get Report Image
+     *
+     *  Code taken from https://www.journaldev.com/7148/java-httpurlconnection-example-java-http-request-get-post
      *
      * @param queryParameters encoded URL
      * @return Byte Array
@@ -282,6 +291,11 @@ public class QuestionAnswerServiceImpl extends UnicastRemoteObject implements Qu
     }
 
 
+    /**
+     * Check if User Has Previous Emails
+     *
+     * @param email User Email
+     */
     private void checkIfUserHasPreviousResponse(String email) {
         try {
             List<Response> responseList = responseRepository.findAllResponsesByEmail(email);

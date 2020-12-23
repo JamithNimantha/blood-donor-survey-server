@@ -41,7 +41,6 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
     @Override
     public boolean saveUser(UserDTO userDTO) throws Exception {
         User user = ToEntity.toUserEntity(userDTO);
-        System.out.println(user);
         return userRepository.save(user);
 
     }

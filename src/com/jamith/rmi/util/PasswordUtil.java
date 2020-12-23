@@ -9,6 +9,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 
+/**
+ * Password Generating and Validating Utility
+ * <p>
+ * This Code taken from https://www.codota.com/code/java/classes/javax.crypto.spec.PBEKeySpec
+ */
 public class PasswordUtil {
     private static final Random RANDOM = new SecureRandom();
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -19,6 +24,11 @@ public class PasswordUtil {
     private PasswordUtil() {
     }
 
+    /**
+     * @return Generated Salt Value
+     *
+     * This Code taken from https://www.codota.com/code/java/classes/javax.crypto.spec.PBEKeySpec
+     */
     public static String getSalt() {
         StringBuilder returnValue = new StringBuilder(SALT_LENGTH);
         for (int i = 0; i < SALT_LENGTH; i++) {
@@ -27,6 +37,14 @@ public class PasswordUtil {
         return new String(returnValue);
     }
 
+    /**
+     * This Code taken from https://www.codota.com/code/java/classes/javax.crypto.spec.PBEKeySpec
+     *
+     * @param password password
+     * @param salt salt value
+     * @return encoded byte array
+     * @throws InvalidKeySpecException
+     */
     private static byte[] hash(char[] password, byte[] salt) throws InvalidKeySpecException {
         PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
         Arrays.fill(password, Character.MIN_VALUE);
@@ -40,6 +58,15 @@ public class PasswordUtil {
         }
     }
 
+    /**
+     *
+     * This Code taken from https://www.codota.com/code/java/classes/javax.crypto.spec.PBEKeySpec
+     *
+     * @param password plain text password
+     * @param salt salt value
+     * @return encoded password
+     * @throws InvalidKeySpecException
+     */
     public static String generateSecurePassword(String password, String salt) throws InvalidKeySpecException {
         String returnValue = null;
         byte[] securePassword = hash(password.toCharArray(), salt.getBytes());
@@ -47,6 +74,16 @@ public class PasswordUtil {
         return returnValue;
     }
 
+    /**
+     * Check if password is correct
+     * This Code taken from https://www.codota.com/code/java/classes/javax.crypto.spec.PBEKeySpec
+     *
+     * @param providedPassword provided plain text password by the user
+     * @param securedPassword encoded password in the database
+     * @param salt salt value
+     * @return true if password provided by user is correct
+     * @throws InvalidKeySpecException
+     */
     public static boolean verifyUserPassword(String providedPassword, String securedPassword, String salt) throws InvalidKeySpecException {
         boolean returnValue = false;
         String newSecurePassword = generateSecurePassword(providedPassword, salt);

@@ -18,6 +18,11 @@ public class HibernateUtil {
     }
     private static SessionFactory sessionFactory = buildSessionFactory();
 
+    /**
+     * Build Session Factory
+     *
+     * @return SessionFactory
+     */
     private static SessionFactory buildSessionFactory(){
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                 .loadProperties("hibernate.properties")
@@ -31,6 +36,9 @@ public class HibernateUtil {
         return metadata.getSessionFactoryBuilder().build();
     }
 
+    /**
+     * @return Return the instance of the SessionFactory
+     */
     public static SessionFactory getSessionFactory(){
         return sessionFactory;
     }

@@ -60,7 +60,7 @@ public class ResponseRepositoryImpl implements ResponseRepository, Serializable 
     public boolean update(Response entity) throws Exception {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Response response = session.get(Response.class, entity.getId());
+//            Response response = session.get(Response.class, entity.getId());
             session.update(entity);
             session.getTransaction().commit();
             return true;

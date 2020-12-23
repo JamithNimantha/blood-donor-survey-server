@@ -19,6 +19,12 @@ public class ToEntity {
     private ToEntity() {
     }
 
+    /**
+     * Convert UserDto to User Entity
+     *
+     * @param dto UserDTO
+     * @return User Entity
+     */
     public static User toUserEntity(UserDTO dto) {
         User user = new User();
         user.setId(dto.getId());
@@ -31,6 +37,12 @@ public class ToEntity {
         return user;
     }
 
+    /**
+     *
+     * convert QuestionDTO to Question Entity
+     * @param dto QuestionDTO
+     * @return Question Entity
+     */
     public static Question toQuestionEntity(QuestionDTO dto) {
         Question question = new Question();
         question.setId(dto.getId());
@@ -45,6 +57,12 @@ public class ToEntity {
         return question;
     }
 
+    /**
+     * Convert AnswerDTO to AnswerEntity
+     *
+     * @param dto AnswerDTO
+     * @return Answer Entity
+     */
     public static Answer toAnswerEntity(AnswerDTO dto) {
         Answer answer = new Answer();
         answer.setId(dto.getId());
@@ -54,6 +72,12 @@ public class ToEntity {
         return answer;
     }
 
+    /**
+     * Convert ResponseDTO to Response Entity
+     *
+     * @param dto ResponseDTO
+     * @return Response Entity
+     */
     public static Response toResponseEntity(ResponseDTO dto) {
         Response response = new Response();
         response.setId(dto.getId());

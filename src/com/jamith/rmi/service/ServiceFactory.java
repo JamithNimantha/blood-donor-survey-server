@@ -7,6 +7,13 @@ import java.rmi.RemoteException;
  */
 public interface ServiceFactory extends SuperService {
 
+    /**
+     * Get Service Implementation by Service Name
+     *
+     * @param serviceType Service Type
+     * @return Service Implementation
+     * @throws RemoteException
+     */
     SuperService getService(ServiceType serviceType) throws RemoteException;
 
     enum ServiceType {

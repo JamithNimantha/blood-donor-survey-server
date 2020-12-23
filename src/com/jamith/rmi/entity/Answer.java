@@ -12,6 +12,11 @@ import java.io.Serializable;
 @Entity(name = "answer")
 public class Answer implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "answer_id")
@@ -24,6 +29,10 @@ public class Answer implements Serializable {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
+    /**
+     * Convert and Return Answer Entity
+     * @return AnswerDTO
+     */
     public AnswerDTO toDTO() {
         AnswerDTO dto = new AnswerDTO();
         dto.setId(id);
@@ -31,6 +40,9 @@ public class Answer implements Serializable {
         return dto;
     }
 
+    /**
+     * @return Generated TOString for the Object
+     */
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Answer{");
